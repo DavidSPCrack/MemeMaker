@@ -14,20 +14,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import es.tessier.mememaker.MemeMakerApplicationSettings;
+
 public class FileUtilities {
 
     private static final String TAG = FileUtilities.class.getSimpleName();
-    private static final String STORAGE_TYPE = StorageType.PUBLIC_EXTERNAL;
     private static final String ALBUM_NAME = "mememaker";
     private static final int TAM_BUFFER = 1024;
 
     public static void saveAssetImage(Context context, String assetName) {
         File fileDirectory = getFileDirectory(context);
-        File fileToWrite = new File(fileDirectory, assetName);
         AssetManager assetManager = context.getAssets();
         InputStream in = null;
         FileOutputStream out = null;
         try {
+            File fileToWrite = new File(fileDirectory, assetName);
+            if (!fileToWrite.exists())
+                File.createTempFile(assetName, "", fileDirectory);
             in = assetManager.open(assetName);
             out = context.openFileOutput(
                     fileToWrite.getName(),
@@ -56,16 +59,24 @@ public class FileUtilities {
         }
     }
 
+    private static boolean existFile(File directory, String file) {
+        File fichero = new File(directory, file);
+        return fichero.exists();
+    }
+
     private static File getFileDirectory(Context context) {
-        if(STORAGE_TYPE.equals(StorageType.INTERNAL)) {
+        MemeMakerApplicationSettings settings = new MemeMakerApplicationSettings(context);
+        String storageType = settings.getStoragePreference();
+
+        if (storageType.equals(StorageType.INTERNAL)) {
             return context.getFilesDir();
         } else {
-            if(isExternalStorageAvailable()) {
-                if(STORAGE_TYPE.equals(StorageType.PRIVATE_EXTERNAL)) {
+            if (isExternalStorageAvailable()) {
+                if (storageType.equals(StorageType.PRIVATE_EXTERNAL)) {
                     return context.getExternalFilesDir(null);
-                } else if(STORAGE_TYPE.equals(StorageType.PUBLIC_EXTERNAL)) {
+                } else if (storageType.equals(StorageType.PUBLIC_EXTERNAL)) {
                     File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), ALBUM_NAME);
-                    if(!file.mkdirs()) {
+                    if (!file.mkdirs()) {
                         Log.e(TAG, "Directory not created");
                     }
                     return file;
@@ -77,7 +88,7 @@ public class FileUtilities {
 
     private static boolean isExternalStorageAvailable() {
         String state = Environment.getExternalStorageState();
-        if(Environment.MEDIA_MOUNTED.equals(state)) {
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
             return true;
         }
         return false;
@@ -112,7 +123,7 @@ public class FileUtilities {
         File fileDirectory = getFileDirectory(context);
         return fileDirectory.listFiles(new FileFilter() {
 
-            private String ACCEPTED_EXTENSIONS[] = {".jpg", ".png"};
+            private String ACCEPTED_EXTENSIONS[] = {".jpg", ".png", ".gif", ".jpeg"};
 
             @Override
             public boolean accept(File pathname) {

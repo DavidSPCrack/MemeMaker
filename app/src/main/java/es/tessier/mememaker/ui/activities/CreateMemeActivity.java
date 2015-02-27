@@ -18,12 +18,13 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
+import java.util.ArrayList;
+
+import es.tessier.mememaker.R;
+import es.tessier.mememaker.database.MemeDatasource;
 import es.tessier.mememaker.models.Meme;
 import es.tessier.mememaker.models.MemeAnnotation;
 import es.tessier.mememaker.ui.views.MemeImageView;
-import es.tessier.mememaker.R;
-
-import java.util.ArrayList;
 
 public class CreateMemeActivity extends Activity {
 
@@ -49,14 +50,14 @@ public class CreateMemeActivity extends Activity {
         mMemeContainer = (FrameLayout) findViewById(R.id.meme_container);
         mMemeBitmapHolder = (MemeImageView) findViewById(R.id.meme_bitmap_container);
 
-        if(this.getIntent().hasExtra(EXTRA_IMAGE_FILE_PATH)) {
+        if (this.getIntent().hasExtra(EXTRA_IMAGE_FILE_PATH)) {
             mImageFilePath = this.getIntent().getStringExtra(EXTRA_IMAGE_FILE_PATH);
             mCurrentMeme = new Meme(-1, mImageFilePath, "", null);
         } else {
-            mCurrentMeme = (Meme)this.getIntent().getSerializableExtra(EXTRA_MEME_OBJECT);
+            mCurrentMeme = (Meme) this.getIntent().getSerializableExtra(EXTRA_MEME_OBJECT);
             mImageFilePath = mCurrentMeme.getAssetLocation();
 
-            for(MemeAnnotation annotation : mCurrentMeme.getAnnotations()) {
+            for (MemeAnnotation annotation : mCurrentMeme.getAnnotations()) {
                 addEditTextOverImage(
                         annotation.getTitle(),
                         annotation.getLocationX(),
@@ -91,7 +92,7 @@ public class CreateMemeActivity extends Activity {
         annotation.setLocationX(touchX);
         annotation.setLocationY(touchY);
 
-        if(mCurrentMeme.getAnnotations() == null) {
+        if (mCurrentMeme.getAnnotations() == null) {
             mCurrentMeme.setAnnotations(new ArrayList<MemeAnnotation>());
         }
 
@@ -144,10 +145,10 @@ public class CreateMemeActivity extends Activity {
                     });
             builder.show();
             return true;
-        } else if(id == android.R.id.home) {
+        } else if (id == android.R.id.home) {
             finish();
             return true;
-        } else if(id == R.id.choose_font_action) {
+        } else if (id == R.id.choose_font_action) {
 
         }
         return super.onOptionsItemSelected(item);
@@ -174,5 +175,8 @@ public class CreateMemeActivity extends Activity {
             MemeAnnotation annotation = mCurrentMeme.getAnnotations().get(i);
             annotation.setTitle(editText.getText().toString());
         }
+
+        MemeDatasource mMemeDatasource = new MemeDatasource(this);
+        mMemeDatasource.create(mCurrentMeme);
     }
 }
