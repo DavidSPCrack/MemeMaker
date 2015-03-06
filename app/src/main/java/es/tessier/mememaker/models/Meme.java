@@ -103,4 +103,8 @@ public class Meme implements Serializable {
         int colIndex = cursor.getColumnIndex(colName);
         return colIndex >= 0 ? cursor.getInt(colIndex) : -1;
     }
+
+    public boolean hasBeenSaved() {
+        return getId() != -1;
+    }
 }

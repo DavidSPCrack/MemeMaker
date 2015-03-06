@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.BaseColumns;
 
 import java.util.ArrayList;
 
@@ -54,21 +55,60 @@ public class MemeDatasource {
         SQLiteDatabase db = openWritable();
         db.beginTransaction();
 
-        ContentValues memeValues = meme.getContentValues();
-        long id = db.insert(MemesEntry.MEMES_TABLE, null, memeValues);
-        if (id > 0) {
-            meme.setId(id);
-            ArrayList<MemeAnnotation> annotations = meme.getAnnotations();
-            for (MemeAnnotation annotation : annotations) {
-                ContentValues memeAnnotationValues = annotation.getContentValues();
-                long idAnnot = db.insert(AnnotationEntry.ANNOTATION_TABLE, null, memeAnnotationValues);
-                annotation.setId(idAnnot);
-            }
-        }
+        createUpdate(db, meme);
 
         db.setTransactionSuccessful();
         db.endTransaction();
         close(db);
+    }
+
+    public void update(Meme meme) {
+        SQLiteDatabase db = openWritable();
+        db.beginTransaction();
+
+        createUpdate(db, meme);
+
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        close(db);
+    }
+
+    public void delete(int memeId) {
+        SQLiteDatabase db = openWritable();
+        db.beginTransaction();
+
+        String whereClauseAnnotations = String.format("%s=%d", AnnotationEntry.COLUMN_MEME_ID, memeId);
+        db.delete(AnnotationEntry.ANNOTATION_TABLE, whereClauseAnnotations, null);
+        String whereClauseMeme = String.format("%s=%d", MemesEntry.COLUMN_ID, memeId);
+        db.delete(MemesEntry.MEMES_TABLE, whereClauseMeme, null);
+
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        close(db);
+    }
+
+    private void createUpdate(SQLiteDatabase db, Meme meme) {
+        ContentValues memeValues = meme.getContentValues();
+        if (!meme.hasBeenSaved()) {
+            long id = db.insert(MemesEntry.MEMES_TABLE, null, memeValues);
+            meme.setId(id);
+        } else {
+            String whereClause = String.format("%s=%d", BaseColumns._ID, meme.getId());
+            db.update(MemesEntry.MEMES_TABLE, memeValues, whereClause, null);
+            meme.setId(meme.getId());
+        }
+        ArrayList<MemeAnnotation> annotations = meme.getAnnotations();
+        for (MemeAnnotation annotation : annotations) {
+            ContentValues memeAnnotationValues = annotation.getContentValues();
+            if (!annotation.hasBeenSaved()) {
+                long idAnnot = db.insert(AnnotationEntry.ANNOTATION_TABLE, null, memeAnnotationValues);
+                annotation.setId(idAnnot);
+            } else {
+                String whereClause = String.format("%s=%d", BaseColumns._ID, annotation.getId());
+                db.update(AnnotationEntry.ANNOTATION_TABLE, memeAnnotationValues, whereClause, null);
+            }
+        }
+
     }
 
     public SQLiteDatabase openReadable() {

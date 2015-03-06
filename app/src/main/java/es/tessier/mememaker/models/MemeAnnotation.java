@@ -107,12 +107,12 @@ public class MemeAnnotation implements Serializable {
 
     public static String getStringValue(Cursor cursor, String colName) {
         int colIndex = cursor.getColumnIndex(colName);
-        return colIndex > 0 ? cursor.getString(colIndex) : "";
+        return colIndex >= 0 ? cursor.getString(colIndex) : "";
     }
 
     public static int getIntegerValue(Cursor cursor, String colName) {
         int colIndex = cursor.getColumnIndex(colName);
-        return colIndex > 0 ? cursor.getInt(colIndex) : -1;
+        return colIndex >= 0 ? cursor.getInt(colIndex) : -1;
     }
 }
 

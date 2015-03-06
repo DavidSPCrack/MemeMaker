@@ -56,4 +56,8 @@ public class MemeItemListAdapter extends BaseAdapter {
 
         return convertView;
     }
+
+    public void setImageItems(List<Meme> imageItems) {
+        this.imageItems = imageItems;
+    }
 }

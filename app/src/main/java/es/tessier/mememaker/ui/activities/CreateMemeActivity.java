@@ -177,6 +177,10 @@ public class CreateMemeActivity extends Activity {
         }
 
         MemeDatasource mMemeDatasource = new MemeDatasource(this);
-        mMemeDatasource.create(mCurrentMeme);
+        if(!mCurrentMeme.hasBeenSaved()) {
+            mMemeDatasource.create(mCurrentMeme);
+        } else {
+            mMemeDatasource.update(mCurrentMeme);
+        }
     }
 }
