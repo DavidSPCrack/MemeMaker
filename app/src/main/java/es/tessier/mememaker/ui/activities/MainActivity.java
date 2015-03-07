@@ -69,6 +69,8 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
             Bitmap bitmap = BitmapFactory.decodeFile(picturePath.toString());
 
             FileUtilities.saveImage(this, bitmap, file.getName());
+
+
         } else if (requestCode != RESULT_CANCELED) {
             Toast.makeText(this, R.string.general_error, Toast.LENGTH_LONG).show();
         }

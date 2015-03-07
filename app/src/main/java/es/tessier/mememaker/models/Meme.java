@@ -30,7 +30,7 @@ public class Meme implements Serializable {
     public Meme(int id, String assetLocation, String name, ArrayList<MemeAnnotation> annotations) {
         mId = id;
         mAssetLocation = assetLocation;
-        mAnnotations = annotations;
+        mAnnotations = annotations == null ? new ArrayList<MemeAnnotation>() : annotations;
         mName = name;
     }
 
@@ -38,6 +38,7 @@ public class Meme implements Serializable {
         mId = getIntegerValue(cursor, MemesEntry.COLUMN_ID);
         mAssetLocation = getStringValue(cursor, MemesEntry.COLUMN_ASSET);
         mName = getStringValue(cursor, MemesEntry.COLUMN_NAME);
+        mAnnotations = new ArrayList<MemeAnnotation>();
     }
 
     public int getId() {
@@ -65,7 +66,7 @@ public class Meme implements Serializable {
     }
 
     public void setAnnotations(ArrayList<MemeAnnotation> annotations) {
-        mAnnotations = annotations;
+        mAnnotations = annotations == null ? new ArrayList<MemeAnnotation>() : annotations;
     }
 
     public String getName() {
@@ -87,7 +88,7 @@ public class Meme implements Serializable {
     public ContentValues getContentValues() {
         ContentValues cv = new ContentValues();
         long id = getId();
-        if(id > 0)
+        if (id > 0)
             cv.put(MemesEntry.COLUMN_ID, id);
         cv.put(MemesEntry.COLUMN_NAME, getName());
         cv.put(MemesEntry.COLUMN_ASSET, getAssetLocation());
